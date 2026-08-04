@@ -1,0 +1,80 @@
+name: Vendor local fonts
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vendor-fonts
+  cancel-in-progress: false
+
+jobs:
+  vendor:
+    if: ${{ !contains(github.event.head_commit.message || '', '[vendor fonts]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Download official Google Fonts files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p fonts licenses
+
+          curl --fail --location --retry 3 \
+            'https://raw.githubusercontent.com/google/fonts/main/ofl/ptserif/PT_Serif-Web-Bold.ttf' \
+            --output fonts/PTSerif-Bold.ttf
+
+          curl --fail --location --retry 3 \
+            'https://raw.githubusercontent.com/google/fonts/main/ofl/opensans/OpenSans%5Bwdth%2Cwght%5D.ttf' \
+            --output fonts/OpenSans-Variable.ttf
+
+          curl --fail --location --retry 3 \
+            'https://raw.githubusercontent.com/google/fonts/main/ofl/ptserif/OFL.txt' \
+            --output licenses/PT-Serif-OFL.txt
+
+          curl --fail --location --retry 3 \
+            'https://raw.githubusercontent.com/google/fonts/main/ofl/opensans/OFL.txt' \
+            --output licenses/Open-Sans-OFL.txt
+
+      - name: Validate downloaded font files
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          files = [
+              Path('fonts/PTSerif-Bold.ttf'),
+              Path('fonts/OpenSans-Variable.ttf'),
+          ]
+
+          valid_magic = {b'\x00\x01\x00\x00', b'OTTO', b'ttcf', b'wOF2'}
+          for path in files:
+              data = path.read_bytes()
+              if len(data) < 50_000:
+                  raise SystemExit(f'{path} is unexpectedly small: {len(data)} bytes')
+              if data[:4] not in valid_magic:
+                  raise SystemExit(f'{path} does not appear to be a valid font file')
+              print(f'{path}: {len(data)} bytes')
+          PY
+
+      - name: Commit vendored fonts and licences
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add fonts licenses
+          if git diff --cached --quiet; then
+            echo 'Font files are already current.'
+            exit 0
+          fi
+          git commit -m '[vendor fonts] Self-host PT Serif and Open Sans'
+          git push
