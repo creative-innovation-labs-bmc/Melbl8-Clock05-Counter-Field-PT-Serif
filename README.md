@@ -12,7 +12,10 @@ A separate PT Serif and Open Sans version of the 3840 × 804 gallery-screen Coun
 
 - PT Serif Bold is used for all tiny counter numerals and is the source for the custom 15 × 17 large-digit masks.
 - Open Sans Regular is used for the header, date, location and preview note.
-- Fonts load from the official Google Fonts service with Georgia and Arial fallbacks.
+- Both font files are self-hosted inside `fonts/`. The production clock no longer requests Google Fonts or any other external font service.
+- PT Serif is stored as the official static Bold TTF from the Google Fonts repository.
+- Open Sans is stored as the official variable upright TTF from the Google Fonts repository and rendered at weight 400.
+- The corresponding SIL Open Font Licence files are stored in `licenses/`.
 - All large numerals share the same cap height, baseline and matrix dimensions.
 
 ## Behaviour
@@ -32,6 +35,7 @@ A separate PT Serif and Open Sans version of the 3840 × 804 gallery-screen Coun
 - Canvas 2D only
 - 18 fps cap
 - No WebGL or heavy frameworks
+- No production network dependency
 - Australia/Melbourne time zone
 - Continuous system-time resynchronisation
 - Rendering pauses while the page is hidden
@@ -59,7 +63,16 @@ This is search-engine exclusion, not password protection. Anyone with the direct
 - `?motion=0` disables micro-motion and staggered colon changes
 - `?time=12:34:56` locks the time for layout testing
 
+## Font files
+
+- `fonts/PTSerif-Bold.ttf`
+- `fonts/OpenSans-Variable.ttf`
+- `licenses/PT-Serif-OFL.txt`
+- `licenses/Open-Sans-OFL.txt`
+
+The one-time vendor workflow is retained at `.github/workflows/vendor-fonts.yml` so the official upstream font files and licences can be restored reproducibly if they are ever removed.
+
 ## Final build
 
-- Build identifier: `20260804b`
+- Build identifier: `20260804c`
 - Main files: `index.html`, `styles.css`, `config.js`, `model.js`, `app.js`
