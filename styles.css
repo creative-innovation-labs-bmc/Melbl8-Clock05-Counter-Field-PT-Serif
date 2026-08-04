@@ -1,3 +1,20 @@
+@font-face {
+  font-family: "PT Serif";
+  src: url("./fonts/PTSerif-Bold.ttf?v=20260804c") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Open Sans";
+  src: url("./fonts/OpenSans-Variable.ttf?v=20260804c") format("truetype");
+  font-style: normal;
+  font-weight: 300 800;
+  font-stretch: 75% 100%;
+  font-display: swap;
+}
+
 :root {
   --stage-w: 3840px;
   --stage-h: 804px;
